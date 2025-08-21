@@ -1,0 +1,24 @@
+:root {
+  --color-rouge: #c70039;
+  --color-jaune: #ffc300;
+}
+
+section#panier {
+  .container .row .table {
+    tbody tr td {
+      p .btn {
+        border: 5px solid #aca0a393 !important;
+        background-color: #e4d7db9c;
+        color: white;
+
+        i {
+          color: #1a1a1a;
+        }
+
+        &:hover {
+          background-color: #a19c9e;
+        }
+      }
+    }
+  }
+}

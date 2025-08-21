@@ -1,0 +1,173 @@
+:root {
+    --color-rouge: #c70039;
+    --color-jaune: #ffc300;
+}
+
+section#check-out {
+    .container .row {
+        a {
+            .animated-button {
+                position: relative;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                padding: 10px 30px;
+                border: 4px solid;
+                border-color: transparent;
+                font-size: 16px;
+                background-color: inherit;
+                border-radius: 100px;
+                font-weight: 600;
+                color: var(--color-rouge);
+                box-shadow: 0 0 0 2px var(--color-rouge);
+                cursor: pointer;
+                overflow: hidden;
+                transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            }
+
+            .animated-button svg {
+                position: absolute;
+                width: 24px;
+                fill: var(--color-rouge);
+                z-index: 9;
+                transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            }
+
+            .animated-button .arr-1 {
+                right: 16px;
+            }
+
+            .animated-button .arr-2 {
+                left: -25%;
+            }
+
+            .animated-button .circle {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 20px;
+                height: 20px;
+                background-color: var(--color-rouge);
+                border-radius: 50%;
+                opacity: 0;
+                transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            }
+
+            .animated-button .text {
+                position: relative;
+                z-index: 1;
+                transform: translateX(-12px);
+                transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            }
+
+            .animated-button:hover {
+                box-shadow: 0 0 0 12px transparent;
+                color: var(--color-jaune);
+                border-radius: 12px;
+            }
+
+            .animated-button:hover .arr-1 {
+                right: -25%;
+            }
+
+            .animated-button:hover .arr-2 {
+                left: 16px;
+            }
+
+            .animated-button:hover .text {
+                transform: translateX(12px);
+            }
+
+            .animated-button:hover svg {
+                fill: var(--color-jaune);
+            }
+
+            .animated-button:active {
+                scale: 0.95;
+                box-shadow: 0 0 0 4px var(--color-rouge);
+            }
+
+            .animated-button:hover .circle {
+                width: 220px;
+                height: 220px;
+                opacity: 1;
+            }
+
+            @media screen and (max-width: 768px) {
+                .animated-button {
+                    scale: 0.95;
+                    box-shadow: 0 0 0 4px var(--color-rouge);
+                }
+
+                .animated-button .circle {
+                    width: 220px;
+                    height: 220px;
+                    opacity: 1;
+                }
+
+                .animated-button {
+                    box-shadow: 0 0 0 12px transparent;
+                    color: #212121;
+                    border-radius: 12px;
+                }
+
+                .animated-button .arr-1 {
+                    right: -25%;
+                }
+
+                .animated-button .arr-2 {
+                    left: 16px;
+                }
+
+                .animated-button .text {
+                    transform: translateX(12px);
+                }
+
+                .animated-button svg {
+                    fill: #212121;
+                }
+            }
+        }
+
+        .col-6 {
+            .inputGroup {
+                /* font-family: cursive; */
+                position: relative;
+            }
+
+            .inputGroup input {
+                font-size: 100%;
+                padding: 0.8em;
+                outline: none;
+                border: 2px solid rgb(200, 200, 200);
+                background-color: transparent;
+                border-radius: 20px;
+                width: 100%;
+            }
+
+            .inputGroup label {
+                font-size: 100%;
+                position: absolute;
+                left: 0;
+                padding: 0.8em;
+                margin-left: 0.5em;
+                pointer-events: none;
+                transition: all 0.3s ease;
+                color: rgb(100, 100, 100);
+            }
+
+            .inputGroup :is(input:focus, input:valid) ~ label {
+                transform: translateY(-50%) scale(0.9);
+                margin: 0em;
+                margin-left: 1.3em;
+                padding: 0.4em;
+                background-color: white;
+            }
+
+            .inputGroup :is(input:focus, input:valid) {
+                border-color: var(--color-jaune);
+            }
+        }
+    }
+}
