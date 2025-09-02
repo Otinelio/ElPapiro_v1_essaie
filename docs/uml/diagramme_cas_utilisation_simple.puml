@@ -1,0 +1,70 @@
+@startuml
+title Diagramme de Cas d'Utilisation - ElPapiro E-commerce (Version Simplifiée)
+
+' === ACTEURS ===
+actor "Visiteur" as Visitor
+actor "Client" as User  
+actor "Employé" as Staff
+actor "Admin" as Admin
+
+' === SYSTÈME ===
+rectangle "ElPapiro E-commerce" {
+
+  ' === CAS D'UTILISATION PUBLICS ===
+  usecase "Naviguer Catalogue" as Browse
+  usecase "Rechercher Produits" as Search
+  usecase "Ajouter au Panier" as AddCart
+  usecase "S'inscrire" as Register
+  usecase "Se Connecter" as Login
+  
+  ' === CAS D'UTILISATION UTILISATEUR ===
+  usecase "Passer Commande" as Order
+  usecase "Suivre Commandes" as Track
+  usecase "Gérer Profil" as Profile
+  usecase "Gérer Favoris" as Favorites
+  
+  ' === CAS D'UTILISATION STAFF ===
+  usecase "Gérer Produits" as ManageProducts
+  usecase "Traiter Commandes" as ProcessOrders
+  usecase "Valider Paiements" as ValidatePayments
+  usecase "Gérer Livraisons" as ManageDelivery
+  
+  ' === CAS D'UTILISATION ADMIN ===
+  usecase "Gérer Personnels" as ManageStaff
+  usecase "Configurer Système" as ConfigSystem
+  usecase "Analyser Rapports" as Reports
+  usecase "Gérer Publicités" as ManageAds
+}
+
+' === RELATIONS ===
+Visitor --> Browse
+Visitor --> Search  
+Visitor --> AddCart
+Visitor --> Register
+Visitor --> Login
+
+User --> Order
+User --> Track
+User --> Profile
+User --> Favorites
+
+Staff --> ManageProducts
+Staff --> ProcessOrders
+Staff --> ValidatePayments
+Staff --> ManageDelivery
+
+Admin --> ManageStaff
+Admin --> ConfigSystem
+Admin --> Reports
+Admin --> ManageAds
+
+' === HÉRITAGE ===
+User --|> Visitor
+Staff --|> User
+Admin --|> Staff
+
+' === EXTENSIONS ===
+AddCart ..> Login : "<<extend>>\n(si non connecté)"
+Order ..> Profile : "<<extend>>\n(mise à jour infos)"
+
+@enduml
