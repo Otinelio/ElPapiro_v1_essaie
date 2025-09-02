@@ -1,0 +1,77 @@
+@startuml
+title Diagramme de Séquence - Authentification et Gestion des Rôles
+
+actor Utilisateur as "Utilisateur"
+participant "AdminAccessController" as AdminAccess
+participant "AuthSessionController" as AuthController
+participant "AdminMiddleware" as AdminMW
+participant "StaffMiddleware" as StaffMW
+participant "User" as UserModel
+participant "Panier" as PanierModel
+database "Base de Données" as DB
+
+== Phase 1: Contrôle d'Accès Admin ==
+Utilisateur -> AdminAccess: GET /admin-access
+AdminAccess --> Utilisateur: formulaire accès admin
+
+Utilisateur -> AdminAccess: POST /admin-access (mot de passe)
+AdminAccess -> AdminAccess: verifyAccess()
+alt Mot de passe correct
+    AdminAccess -> AdminAccess: session('admin_access_granted', true)
+    AdminAccess --> Utilisateur: redirect vers login
+else Mot de passe incorrect
+    AdminAccess --> Utilisateur: retour avec erreur
+end
+
+== Phase 2: Authentification ==
+Utilisateur -> AuthController: GET /login
+AuthController -> AuthController: vérifier session admin_access
+alt Session admin non validée
+    AuthController --> Utilisateur: redirect vers admin-access
+end
+
+AuthController --> Utilisateur: formulaire login
+
+Utilisateur -> AuthController: POST /login (email, password)
+AuthController -> AuthController: validate credentials
+AuthController -> UserModel: authenticate(email, password)
+UserModel -> DB: SELECT user WHERE email
+DB --> UserModel: user data
+UserModel --> AuthController: utilisateur authentifié
+
+== Phase 3: Transfert du Panier ==
+AuthController -> AuthController: authenticated(request, user)
+AuthController -> PanierModel: transférer panier session → DB
+loop Pour chaque item session panier
+    PanierModel -> DB: INSERT/UPDATE panier user
+end
+AuthController -> AuthController: session()->forget('panier')
+
+== Phase 4: Redirection par Rôle ==
+AuthController -> AuthController: vérifier user.role
+alt role = 'admin'
+    AuthController --> Utilisateur: redirect route('produit.index')
+else role = 'staff'
+    AuthController --> Utilisateur: redirect route('staff.produit.index')
+else role = 'user'
+    AuthController --> Utilisateur: redirect route('user.index')
+end
+
+== Phase 5: Protection des Routes ==
+
+' === Accès Route Admin ===
+Utilisateur -> AdminMW: requête route admin/*
+AdminMW -> AdminMW: Auth::check()
+alt Non authentifié
+    AdminMW --> Utilisateur: redirect login
+end
+AdminMW -> AdminMW: vérifier user.role
+alt role = 'admin'
+    AdminMW --> "Route Admin": accès autorisé
+else role = 'staff'
+    AdminMW --> Utilisateur: redirect staff.produit.index
+else role = 'user'
+    AdminMW --> Utilisateur: redirect accueil
+end
+
+@enduml

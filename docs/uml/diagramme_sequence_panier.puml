@@ -1,0 +1,74 @@
+@startuml
+title Diagramme de Séquence - Gestion du Panier (Multi-Contexte)
+
+actor Client as "Client"
+participant "PanierController" as Controller
+participant "Auth" as AuthFacade
+participant "Panier" as PanierModel
+participant "Session" as SessionMgr
+database "Base de Données" as DB
+
+== Ajouter Produit au Panier ==
+
+Client -> Controller: POST /panier/add/{produit}
+Controller -> Controller: validate(quantité)
+Controller -> AuthFacade: check()
+
+alt Utilisateur Connecté
+    AuthFacade --> Controller: true (user authenticated)
+    Controller -> PanierModel: where('user_id', Auth::id())
+    PanierModel -> DB: SELECT panier WHERE user_id AND produit_id
+    DB --> PanierModel: panier existant ou null
+    
+    alt Produit déjà dans panier
+        Controller -> PanierModel: update(quantité += nouvelle_quantité)
+        PanierModel -> DB: UPDATE paniers SET quantite
+    else Nouveau produit
+        Controller -> PanierModel: create(user_id, produit_id, quantité)
+        PanierModel -> DB: INSERT INTO paniers
+    end
+
+else Utilisateur Invité
+    AuthFacade --> Controller: false (not authenticated)
+    Controller -> Controller: getOrCreateSessionId()
+    Controller -> SessionMgr: récupérer/créer session_id
+    SessionMgr --> Controller: session_id
+    
+    Controller -> PanierModel: where('session_id', session_id)
+    PanierModel -> DB: SELECT panier WHERE session_id AND produit_id
+    DB --> PanierModel: panier existant ou null
+    
+    alt Produit déjà dans panier
+        Controller -> PanierModel: update(quantité += nouvelle_quantité)
+        PanierModel -> DB: UPDATE paniers SET quantite
+    else Nouveau produit
+        Controller -> PanierModel: create(session_id, produit_id, quantité)
+        PanierModel -> DB: INSERT INTO paniers
+    end
+end
+
+Controller --> Client: redirect avec message succès
+
+== Transfert Panier lors Connexion ==
+
+Client -> AuthFacade: login(email, password)
+AuthFacade -> Controller: authenticated(request, user)
+Controller -> SessionMgr: get('panier')
+SessionMgr --> Controller: panier_session[]
+
+loop Pour chaque item session
+    Controller -> PanierModel: where('user_id', user.id)
+    PanierModel -> DB: SELECT panier WHERE user_id AND produit_id
+    
+    alt Produit existe déjà
+        Controller -> PanierModel: update(quantité += session_quantité)
+        PanierModel -> DB: UPDATE paniers
+    else Nouveau produit
+        Controller -> PanierModel: create(user_id, produit_id, quantité)
+        PanierModel -> DB: INSERT INTO paniers
+    end
+end
+
+Controller -> SessionMgr: forget('panier')
+
+@enduml
