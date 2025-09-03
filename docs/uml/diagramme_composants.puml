@@ -1,0 +1,131 @@
+@startuml
+title Diagramme de Composants - Architecture ElPapiro E-commerce
+
+!define BOUNDARY rectangle
+!define COMPONENT component
+
+package "Interface Utilisateur" {
+    COMPONENT [Pages Client] as ClientPages
+    COMPONENT [Dashboard Admin] as AdminDash
+    COMPONENT [Interface Staff] as StaffInterface
+    COMPONENT [Pages Auth] as AuthPages
+    
+    package "Assets Frontend" {
+        COMPONENT [CSS/Bootstrap] as Styles
+        COMPONENT [JavaScript] as Scripts
+        COMPONENT [Images] as Images
+    }
+}
+
+package "Couche Contrôleur" {
+    package "Controllers User" {
+        COMPONENT [UserController] as UserCtrl
+        COMPONENT [CheckOutController] as CheckoutCtrl
+        COMPONENT [PanierController] as PanierCtrl
+        COMPONENT [CommandeController] as CmdCtrl
+    }
+    
+    package "Controllers Admin" {
+        COMPONENT [AdminController] as AdminCtrl
+        COMPONENT [ProduitController Admin] as AdminProdCtrl
+        COMPONENT [CategorieController] as CatCtrl
+        COMPONENT [AdminPersonnelsController] as PersonnelCtrl
+    }
+    
+    package "Controllers Staff" {
+        COMPONENT [ProduitController Staff] as StaffProdCtrl
+        COMPONENT [StaffController] as StaffCtrl
+    }
+    
+    package "Controllers Auth" {
+        COMPONENT [AuthenticatedSessionController] as AuthCtrl
+        COMPONENT [RegisteredUserController] as RegisterCtrl
+    }
+}
+
+package "Couche Middleware" {
+    COMPONENT [AdminMiddleware] as AdminMW
+    COMPONENT [StaffMiddleware] as StaffMW
+    COMPONENT [AdminAccessMiddleware] as AccessMW
+}
+
+package "Couche Services" {
+    COMPONENT [EmailService] as EmailSvc
+    COMPONENT [WhatsAppService] as WhatsAppSvc
+    COMPONENT [TwilioMessenger] as TwilioSvc
+}
+
+package "Couche Modèle" {
+    COMPONENT [User] as UserModel
+    COMPONENT [Produit] as ProduitModel
+    COMPONENT [Commande] as CommandeModel
+    COMPONENT [Panier] as PanierModel
+    COMPONENT [Categorie] as CategorieModel
+    COMPONENT [Paiement] as PaiementModel
+    COMPONENT [CommandeProduit] as CmdProduitModel
+    COMPONENT [Pub] as PubModel
+}
+
+package "Couche Données" {
+    database "SQLite Database" as DB
+    COMPONENT [Migrations] as Migrations
+    COMPONENT [Eloquent ORM] as ORM
+}
+
+package "Services Externes" {
+    COMPONENT [CinetPay API] as CinetPay
+    COMPONENT [WhatsApp API] as WhatsAppAPI
+    COMPONENT [Email SMTP] as EmailSMTP
+}
+
+package "Configuration" {
+    COMPONENT [Routes] as Routes
+    COMPONENT [Kernel HTTP] as Kernel
+    COMPONENT [Config] as Config
+}
+
+' === CONNEXIONS ===
+
+' Interface vers Contrôleurs
+ClientPages --> UserCtrl
+AdminDash --> AdminCtrl
+StaffInterface --> StaffCtrl
+AuthPages --> AuthCtrl
+
+' Middleware
+UserCtrl --> AdminMW
+AdminCtrl --> AdminMW
+StaffCtrl --> StaffMW
+AuthCtrl --> AccessMW
+
+' Contrôleurs vers Services
+CheckoutCtrl --> EmailSvc
+CheckoutCtrl --> WhatsAppSvc
+UserCtrl --> WhatsAppSvc
+
+' Contrôleurs vers Modèles
+UserCtrl --> UserModel
+UserCtrl --> ProduitModel
+UserCtrl --> PanierModel
+CheckoutCtrl --> CommandeModel
+CheckoutCtrl --> CmdProduitModel
+AdminCtrl --> ProduitModel
+AdminCtrl --> CategorieModel
+
+' Services vers APIs
+EmailSvc --> EmailSMTP
+WhatsAppSvc --> WhatsAppAPI
+TwilioSvc --> WhatsAppAPI
+
+' Modèles vers Base
+UserModel --> ORM
+ProduitModel --> ORM
+CommandeModel --> ORM
+PanierModel --> ORM
+ORM --> DB
+
+' Configuration
+Routes --> Kernel
+Kernel --> Config
+
+@enduml

@@ -1,0 +1,69 @@
+@startuml
+title Diagramme de Séquence - Processus de Checkout/Commande
+
+actor Client as "Client"
+participant "CheckOutController" as Controller
+participant "Panier" as PanierModel
+participant "Commande" as CommandeModel
+participant "CommandeProduit" as CmdProduit
+participant "Produit" as ProduitModel
+participant "EmailService" as Email
+participant "WhatsAppService" as WhatsApp
+database "Base de Données" as DB
+
+== Phase 1: Affichage du Checkout ==
+Client -> Controller: GET /check-out
+Controller -> PanierModel: récupérer items panier
+PanierModel -> DB: SELECT paniers WHERE user_id/session_id
+DB --> PanierModel: items[]
+PanierModel --> Controller: items avec produits
+Controller -> Controller: calculer totalPrixPanier
+Controller --> Client: vue checkout avec items
+
+== Phase 2: Validation et Traitement ==
+Client -> Controller: POST /check-out (données formulaire)
+Controller -> Controller: validate(request)
+alt Validation échoue
+    Controller --> Client: retour avec erreurs
+end
+
+Controller -> PanierModel: vérifier panier non vide
+PanierModel -> DB: SELECT paniers
+DB --> PanierModel: items[]
+alt Panier vide
+    Controller --> Client: redirect panier avec erreur
+end
+
+== Phase 3: Création de la Commande ==
+Controller -> Controller: calculer montant total
+Controller -> CommandeModel: create(données client)
+CommandeModel -> CommandeModel: booted() - générer numero_commande
+CommandeModel -> DB: INSERT commande
+DB --> CommandeModel: commande créée
+
+== Phase 4: Traitement des Articles ==
+loop Pour chaque item du panier
+    Controller -> CmdProduit: create(commande_id, produit_id, prix, quantité)
+    CmdProduit -> DB: INSERT commande_produit
+    Controller -> ProduitModel: decrement stock
+    ProduitModel -> DB: UPDATE produits SET quantite_stock
+end
+
+== Phase 5: Nettoyage Panier ==
+Controller -> PanierModel: delete panier user/session
+PanierModel -> DB: DELETE FROM paniers
+
+== Phase 6: Notifications ==
+Controller -> Email: send(EmailCommande)
+Email -> Email: Mail::send() vers client
+Controller -> WhatsApp: sendWhatsappMessage(commande)
+WhatsApp -> WhatsApp: construire message + URL
+
+== Phase 7: Redirection selon Paiement ==
+alt Mode = cinetpay
+    Controller --> Client: redirect vers passerelle paiement
+else Mode = livraison/boutique
+    Controller --> Client: redirect vers résumé commande
+end
+
+@enduml

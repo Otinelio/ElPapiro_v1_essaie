@@ -1,0 +1,146 @@
+@startuml
+!define ENTITY class
+
+title Diagramme de Classes - ElPapiro E-commerce
+
+' === MODÈLES PRINCIPAUX ===
+
+ENTITY User {
+  +id: int
+  +name: string
+  +email: string (unique)
+  +role: enum('user','staff','admin')
+  +email_verified_at: timestamp
+  +password: string (hashed)
+  +remember_token: string
+  +created_at: timestamp
+  +updated_at: timestamp
+  --
+  +commandes(): HasMany
+  +paniers(): HasMany
+}
+
+ENTITY Categorie {
+  +id: int
+  +name: string
+  +description: string
+  +created_at: timestamp
+  +updated_at: timestamp
+  --
+  +produits(): HasMany
+}
+
+ENTITY Produit {
+  +id: int
+  +name: string
+  +slug: string (unique)
+  +description: text
+  +sous_categorie: enum
+  +quantite_stock: int
+  +prix: decimal(20,2)
+  +image: string
+  +categorie_id: int (FK)
+  +created_at: timestamp
+  +updated_at: timestamp
+  --
+  +categorie(): BelongsTo
+  +paniers(): HasMany
+  +commandes(): HasMany
+  +sluggable(): array
+  -SOUS_CATEGORIES: array
+}
+
+ENTITY Panier {
+  +id: int
+  +user_id: int (FK, nullable)
+  +session_id: string (nullable)
+  +produit_id: int (FK)
+  +quantite: int
+  +created_at: timestamp
+  +updated_at: timestamp
+  --
+  +user(): BelongsTo
+  +produit(): BelongsTo
+}
+
+ENTITY Commande {
+  +id: int
+  +numero_commande: string (unique)
+  +utilisateur_id: int (FK, nullable)
+  +nom_client: string
+  +email_client: string
+  +telephone_client: string
+  +telephone_whatsapp: string
+  +adresse: string
+  +ville: string
+  +pays: string
+  +code_postal: string
+  +montant_total: decimal(10,0)
+  +mode_paiement: enum('cinetpay','livraison','boutique')
+  +statut: enum('en_attente','terminee','annulee')
+  +identifiant_transaction: string (unique)
+  +jeton_acces: string (unique)
+  +notification_whatsapp_envoyee: boolean
+  +notification_whatsapp_envoyee_le: timestamp
+  +created_at: timestamp
+  +updated_at: timestamp
+  --
+  +user(): BelongsTo
+  +produits(): HasMany
+  +paiements(): HasMany
+  +booted(): void
+}
+
+ENTITY CommandeProduit {
+  +id: int
+  +commande_id: int (FK)
+  +produit_id: int (FK)
+  +prix: decimal(10,2)
+  +quantite: int
+  +created_at: timestamp
+  +updated_at: timestamp
+  --
+  +commande(): BelongsTo
+  +produit(): BelongsTo
+}
+
+ENTITY Paiement {
+  +id: int
+  +commande_id: int (FK)
+  +montant: decimal(20,2)
+  +methode: string
+  +statut: string
+  +created_at: timestamp
+  +updated_at: timestamp
+  --
+  +commande(): BelongsTo
+}
+
+ENTITY Pub {
+  +id: int
+  +titre: string(150)
+  +description: string(255)
+  +image: string(255)
+  +position: enum('banner','section1','section2')
+  +page: enum('boutique','detail-boutique','checkout')
+  +is_active: boolean
+  +created_at: timestamp
+  +updated_at: timestamp
+}
+
+' === RELATIONS ===
+User ||--o{ Panier : "possède"
+User ||--o{ Commande : "passe"
+
+Categorie ||--o{ Produit : "contient"
+
+Produit ||--o{ Panier : "dans"
+Produit ||--o{ CommandeProduit : "commandé"
+
+Commande ||--o{ CommandeProduit : "contient"
+Commande ||--o{ Paiement : "payée par"
+
+CommandeProduit }o--|| Produit : "référence"
+CommandeProduit }o--|| Commande : "appartient à"
+
+@enduml

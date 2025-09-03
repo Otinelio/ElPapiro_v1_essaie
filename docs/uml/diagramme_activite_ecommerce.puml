@@ -1,0 +1,70 @@
+@startuml
+title Diagramme d'Activité - Flux E-commerce Global ElPapiro
+
+start
+
+:Visiteur arrive sur site;
+
+if (Produit intéresse ?) then (oui)
+  :Consulter détail produit;
+  :Ajouter au panier;
+  
+  if (Continuer shopping ?) then (oui)
+    :Retour catalogue;
+  else (non)
+    :Aller au panier;
+  endif
+else (non)
+  :Navigation catalogue;
+endif
+
+:Réviser panier;
+
+if (Panier OK ?) then (oui)
+  :Aller au checkout;
+else (non)
+  :Modifier quantités/
+  Supprimer articles;
+endif
+
+if (Utilisateur connecté ?) then (non)
+  if (Créer compte ?) then (oui)
+    :Inscription;
+    :Validation email;
+  else (non)
+    :Continuer comme invité;
+  endif
+else (oui)
+  :Session utilisateur;
+endif
+
+:Remplir informations livraison;
+:Choisir mode paiement;
+
+if (Mode paiement ?) then (CinetPay)
+  :Redirection passerelle;
+  :Paiement en ligne;
+  if (Paiement réussi ?) then (oui)
+    :Confirmation commande;
+  else (non)
+    :Échec - retour checkout;
+  endif
+else (Livraison/Boutique)
+  :Commande enregistrée;
+  :Paiement différé;
+endif
+
+:Envoi email confirmation;
+:Génération message WhatsApp;
+:Affichage résumé commande;
+
+if (Rôle = Admin/Staff ?) then (oui)
+  :Redirection dashboard;
+  :Gestion commandes;
+else (non)
+  :Retour accueil client;
+endif
+
+stop
+
+@enduml

@@ -1,0 +1,97 @@
+@startuml
+title Diagramme de Cas d'Utilisation - ElPapiro E-commerce
+
+left to right direction
+
+' === ACTEURS ===
+actor "Client/Visiteur" as Client
+actor "Utilisateur Connecté" as User
+actor "Employé (Staff)" as Staff
+actor "Administrateur" as Admin
+actor "Système de Paiement" as PaymentSystem
+
+' === PACKAGE PRINCIPAL ===
+package "ElPapiro E-commerce System" {
+
+  ' === CAS D'UTILISATION PUBLICS ===
+  usecase "Naviguer Catalogue" as UC1
+  usecase "Rechercher Produits" as UC2
+  usecase "Voir Détail Produit" as UC3
+  usecase "Ajouter au Panier" as UC4
+  usecase "Gérer Panier" as UC5
+  
+  ' === CAS D'UTILISATION UTILISATEUR ===
+  usecase "S'inscrire" as UC6
+  usecase "Se Connecter" as UC7
+  usecase "Passer Commande" as UC8
+  usecase "Suivre Commandes" as UC9
+  usecase "Gérer Profil" as UC10
+  usecase "Gérer Favoris" as UC11
+  
+  ' === CAS D'UTILISATION STAFF ===
+  usecase "Gérer Produits (Staff)" as UC12
+  usecase "Traiter Commandes" as UC13
+  usecase "Gérer Livraisons" as UC14
+  usecase "Valider Paiements" as UC15
+  usecase "Gérer Publicités" as UC16
+  
+  ' === CAS D'UTILISATION ADMIN ===
+  usecase "Gérer Catégories" as UC17
+  usecase "Gérer Produits (Admin)" as UC18
+  usecase "Gérer Personnels" as UC19
+  usecase "Superviser Commandes" as UC20
+  usecase "Analyser Rapports" as UC21
+  usecase "Configurer Système" as UC22
+  
+  ' === CAS D'UTILISATION SYSTÈME ===
+  usecase "Traiter Paiement" as UC23
+  usecase "Envoyer Notifications" as UC24
+  usecase "Gérer Stock" as UC25
+}
+
+' === RELATIONS ACTEURS ===
+Client <|-- User
+User <|-- Staff
+Staff <|-- Admin
+
+' === RELATIONS CAS D'UTILISATION - CLIENT/VISITEUR ===
+Client --> UC1
+Client --> UC2
+Client --> UC3
+Client --> UC4
+Client --> UC5
+Client --> UC6
+Client --> UC7
+
+' === RELATIONS CAS D'UTILISATION - UTILISATEUR ===
+User --> UC8
+User --> UC9
+User --> UC10
+User --> UC11
+
+' === RELATIONS CAS D'UTILISATION - STAFF ===
+Staff --> UC12
+Staff --> UC13
+Staff --> UC14
+Staff --> UC15
+Staff --> UC16
+
+' === RELATIONS CAS D'UTILISATION - ADMIN ===
+Admin --> UC17
+Admin --> UC18
+Admin --> UC19
+Admin --> UC20
+Admin --> UC21
+Admin --> UC22
+
+' === RELATIONS SYSTÈME ===
+PaymentSystem --> UC23
+UC8 ..> UC23 : <<include>>
+UC8 ..> UC24 : <<include>>
+UC8 ..> UC25 : <<include>>
+
+' === EXTENSIONS ===
+UC4 ..> UC7 : <<extend>>
+UC8 ..> UC10 : <<extend>>
+
+@enduml

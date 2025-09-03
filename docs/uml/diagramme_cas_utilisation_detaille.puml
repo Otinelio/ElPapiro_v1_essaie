@@ -1,0 +1,177 @@
+@startuml
+!theme cerulean-outline
+title Diagramme de Cas d'Utilisation - ElPapiro E-commerce
+
+left to right direction
+
+' === ACTEURS PRINCIPAUX ===
+actor "Visiteur" as Visitor
+actor "Client Connecté" as User
+actor "Employé (Staff)" as Staff
+actor "Administrateur" as Admin
+
+' === ACTEURS SYSTÈMES ===
+actor "Système de Paiement\n(CinetPay)" as PaymentSystem
+actor "Service Email\n(SMTP)" as EmailSystem
+actor "WhatsApp Business\nAPI" as WhatsAppSystem
+
+' === PACKAGE PRINCIPAL ===
+package "ElPapiro E-commerce System" {
+
+  ' === MODULE CATALOGUE ===
+  package "Module Catalogue" {
+    usecase "Naviguer Catalogue" as UC01
+    usecase "Rechercher Produits" as UC02
+    usecase "Filtrer par Catégorie" as UC03
+    usecase "Voir Détail Produit" as UC04
+    usecase "Consulter Stock" as UC05
+  }
+  
+  ' === MODULE PANIER ===
+  package "Module Panier" {
+    usecase "Ajouter au Panier" as UC06
+    usecase "Modifier Quantité" as UC07
+    usecase "Supprimer du Panier" as UC08
+    usecase "Vider Panier" as UC09
+    usecase "Gérer Favoris" as UC10
+  }
+  
+  ' === MODULE AUTHENTIFICATION ===
+  package "Module Authentification" {
+    usecase "S'inscrire" as UC11
+    usecase "Se Connecter" as UC12
+    usecase "Se Déconnecter" as UC13
+    usecase "Réinitialiser Mot de Passe" as UC14
+    usecase "Gérer Profil" as UC15
+  }
+  
+  ' === MODULE COMMANDE ===
+  package "Module Commande" {
+    usecase "Passer Commande" as UC16
+    usecase "Choisir Mode Paiement" as UC17
+    usecase "Suivre Commandes" as UC18
+    usecase "Annuler Commande" as UC19
+    usecase "Confirmer Réception" as UC20
+  }
+  
+  ' === MODULE GESTION PRODUITS ===
+  package "Module Gestion Produits" {
+    usecase "Créer Produit" as UC21
+    usecase "Modifier Produit" as UC22
+    usecase "Supprimer Produit" as UC23
+    usecase "Gérer Stock" as UC24
+    usecase "Gérer Catégories" as UC25
+  }
+  
+  ' === MODULE GESTION COMMANDES ===
+  package "Module Gestion Commandes" {
+    usecase "Traiter Commandes" as UC26
+    usecase "Valider Paiement" as UC27
+    usecase "Gérer Livraisons" as UC28
+    usecase "Générer Rapports" as UC29
+  }
+  
+  ' === MODULE ADMINISTRATION ===
+  package "Module Administration" {
+    usecase "Gérer Personnels" as UC30
+    usecase "Configurer Système" as UC31
+    usecase "Gérer Publicités" as UC32
+    usecase "Analyser Statistiques" as UC33
+    usecase "Sauvegarder Données" as UC34
+  }
+  
+  ' === SERVICES SYSTÈME ===
+  package "Services Système" {
+    usecase "Traiter Paiement\nCinetPay" as UC35
+    usecase "Envoyer Email\nConfirmation" as UC36
+    usecase "Envoyer Notification\nWhatsApp" as UC37
+    usecase "Gérer Sessions\nPanier" as UC38
+  }
+}
+
+' === RELATIONS HÉRITAGE ACTEURS ===
+Visitor <|-- User : "s'inscrit"
+User <|-- Staff : "est promu"
+Staff <|-- Admin : "droits étendus"
+
+' === RELATIONS VISITEUR ===
+Visitor --> UC01 : "consulte"
+Visitor --> UC02 : "recherche"
+Visitor --> UC03 : "filtre"
+Visitor --> UC04 : "examine"
+Visitor --> UC05 : "vérifie"
+Visitor --> UC06 : "ajoute"
+Visitor --> UC11 : "s'inscrit"
+Visitor --> UC12 : "se connecte"
+
+' === RELATIONS CLIENT CONNECTÉ ===
+User --> UC07 : "modifie"
+User --> UC08 : "supprime"
+User --> UC09 : "vide"
+User --> UC10 : "favori"
+User --> UC13 : "quitte"
+User --> UC14 : "récupère"
+User --> UC15 : "édite"
+User --> UC16 : "commande"
+User --> UC17 : "choisit"
+User --> UC18 : "suit"
+User --> UC19 : "annule"
+User --> UC20 : "confirme"
+
+' === RELATIONS EMPLOYÉ (STAFF) ===
+Staff --> UC21 : "crée"
+Staff --> UC22 : "modifie"
+Staff --> UC23 : "supprime"
+Staff --> UC24 : "gère"
+Staff --> UC26 : "traite"
+Staff --> UC27 : "valide"
+Staff --> UC28 : "organise"
+Staff --> UC32 : "gère"
+
+' === RELATIONS ADMINISTRATEUR ===
+Admin --> UC25 : "administre"
+Admin --> UC29 : "génère"
+Admin --> UC30 : "supervise"
+Admin --> UC31 : "configure"
+Admin --> UC33 : "analyse"
+Admin --> UC34 : "sauvegarde"
+
+' === RELATIONS SYSTÈMES EXTERNES ===
+PaymentSystem --> UC35 : "exécute"
+EmailSystem --> UC36 : "envoie"
+WhatsAppSystem --> UC37 : "diffuse"
+
+' === RELATIONS INCLUDE ===
+UC16 .> UC35 : "<<include>>"
+UC16 .> UC36 : "<<include>>"
+UC16 .> UC37 : "<<include>>"
+UC16 .> UC38 : "<<include>>"
+
+UC06 .> UC38 : "<<include>>"
+UC12 .> UC38 : "<<include>>"
+
+' === RELATIONS EXTEND ===
+UC06 ..> UC12 : "<<extend>>\n(si non connecté)"
+UC16 ..> UC15 : "<<extend>>\n(mise à jour profil)"
+UC18 ..> UC20 : "<<extend>>\n(si livré)"
+
+' === NOTES EXPLICATIVES ===
+note right of UC16
+  Processus central du système
+  Déclenche notifications
+  et mise à jour stock
+end note
+
+note right of UC38
+  Service transversal
+  Gère connecté/invité
+  Transfert automatique
+end note
+
+note left of Admin
+  Hérite de tous les droits
+  Staff + permissions
+  système avancées
+end note
+
+@enduml
